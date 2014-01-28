@@ -1,0 +1,16 @@
+<features name="mapseq-pipeline-nec-id-check-${project.version}">
+
+  <feature name="mapseq-pipeline-nec-id-check" version="${project.version}" resolver="(obr)">
+    <bundle>mvn:edu.unc.mapseq.pipelines.nec-id-check/nec-id-check-commons/${project.version}</bundle>
+    <bundle>mvn:edu.unc.mapseq.pipelines.nec-id-check/nec-id-check-workflow/${project.version}</bundle>
+    <bundle>mvn:edu.unc.mapseq.pipelines.nec-id-check/nec-id-check-commands/${project.version}</bundle>
+    <bundle start-level="100">mvn:edu.unc.mapseq.pipelines.nec-id-check/nec-id-check-executor/${project.version}</bundle>
+    <bundle start-level="100">mvn:edu.unc.mapseq.pipelines.nec-id-check/nec-id-check-messaging/${project.version}</bundle>
+  </feature>
+
+</features>
+
+
+
+
+
