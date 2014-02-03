@@ -1,2 +1,2 @@
 target
-nida-ucsf-id-check-workflow/src/main/resources/edu/unc/mapseq/workflow/nida/ucsf/ic/workflow.properties
+nec-id-check-workflow/src/main/resources/edu/unc/mapseq/workflow/nec/ic/workflow.properties
