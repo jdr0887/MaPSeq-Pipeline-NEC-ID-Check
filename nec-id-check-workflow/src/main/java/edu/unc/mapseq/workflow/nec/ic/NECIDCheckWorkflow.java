@@ -11,6 +11,7 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.renci.jlrm.condor.CondorJob;
+import org.renci.jlrm.condor.CondorJobBuilder;
 import org.renci.jlrm.condor.CondorJobEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,10 @@ import edu.unc.mapseq.dao.model.SequencerRun;
 import edu.unc.mapseq.dao.model.Workflow;
 import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
 import edu.unc.mapseq.module.ic.CalculateMaximumLikelihoodFromVCFCLI;
-import edu.unc.mapseq.workflow.AbstractWorkflow;
 import edu.unc.mapseq.workflow.WorkflowException;
-import edu.unc.mapseq.workflow.WorkflowJobFactory;
 import edu.unc.mapseq.workflow.WorkflowUtil;
+import edu.unc.mapseq.workflow.impl.AbstractWorkflow;
+import edu.unc.mapseq.workflow.impl.WorkflowJobFactory;
 
 public class NECIDCheckWorkflow extends AbstractWorkflow {
 
@@ -111,63 +112,17 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
                 throw new WorkflowException("vcf file to process was not found");
             }
 
-            // new job
-            /*
-             * CondorJob subsetVCFJob = WorkflowJobFactory.createJob(++count, SubsetVCFCLI.class, getWorkflowPlan(),
-             * htsfSample); subsetVCFJob.setSiteName(siteName); subsetVCFJob.addArgument(SubsetVCFCLI.INTERVALLIST,
-             * intervalList); subsetVCFJob.addArgument(SubsetVCFCLI.VCF, vcfFile.getAbsolutePath()); File
-             * subsetVCFOutput = new File(outputDirectory, vcfFile.getName().replace(".vcf", ".subset.vcf"));
-             * subsetVCFJob.addArgument(SubsetVCFCLI.OUTPUT, subsetVCFOutput.getAbsolutePath());
-             * graph.addVertex(subsetVCFJob);
-             * 
-             * // new job CondorJob flattenVCFJob = WorkflowJobFactory.createJob(++count, FlattenVCFCLI.class,
-             * getWorkflowPlan(), htsfSample); flattenVCFJob.setSiteName(siteName);
-             * flattenVCFJob.addArgument(FlattenVCFCLI.INTERVALLIST, intervalList); flattenVCFJob.addArgument(
-             * FlattenVCFCLI.SAMPLE, String.format("%s_%s_L%03d_%s", sequencerRun.getName(), htsfSample.getBarcode(),
-             * htsfSample.getLaneIndex(), htsfSample.getName())); flattenVCFJob.addArgument(FlattenVCFCLI.VCF,
-             * subsetVCFOutput.getAbsolutePath()); File flattenVCFOutput = new File(outputDirectory,
-             * vcfFile.getName().replace(".vcf", ".fvcf")); flattenVCFJob.addArgument(FlattenVCFCLI.OUTPUT,
-             * flattenVCFOutput.getAbsolutePath()); graph.addVertex(flattenVCFJob); graph.addEdge(subsetVCFJob,
-             * flattenVCFJob);
-             * 
-             * // new job CondorJob calculateMaximumLikelihoodsJob = WorkflowJobFactory.createJob(++count,
-             * CalculateMaximumLikelihoodsCLI.class, getWorkflowPlan(), htsfSample);
-             * calculateMaximumLikelihoodsJob.setSiteName(siteName);
-             * calculateMaximumLikelihoodsJob.addArgument(CalculateMaximumLikelihoodsCLI.ECDATA, exomeChipData);
-             * calculateMaximumLikelihoodsJob.addArgument(CalculateMaximumLikelihoodsCLI.FLATVCF,
-             * flattenVCFOutput.getAbsolutePath()); File calculateMaximumLikelihoodsOutput = new File(outputDirectory,
-             * vcfFile.getName().replace(".vcf", ".ec.tsv"));
-             * calculateMaximumLikelihoodsJob.addArgument(CalculateMaximumLikelihoodsCLI.OUTPUT,
-             * calculateMaximumLikelihoodsOutput.getAbsolutePath()); graph.addVertex(calculateMaximumLikelihoodsJob);
-             * graph.addEdge(flattenVCFJob, calculateMaximumLikelihoodsJob);
-             */
+            CondorJobBuilder builder = WorkflowJobFactory
+                    .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, getWorkflowPlan(), htsfSample)
+                    .siteName(siteName).priority(200);
+            builder.addArgument(CalculateMaximumLikelihoodFromVCFCLI.VCF, vcfFile.getAbsolutePath())
+                    .addArgument(CalculateMaximumLikelihoodFromVCFCLI.INTERVALLIST, intervalList)
+                    .addArgument(CalculateMaximumLikelihoodFromVCFCLI.SAMPLE, vcfFile.getName().replace(".vcf", ""))
+                    .addArgument(CalculateMaximumLikelihoodFromVCFCLI.ECDATA, exomeChipData)
+                    .addArgument(CalculateMaximumLikelihoodFromVCFCLI.OUTPUT, outputDirectory.getAbsolutePath());
 
-            // new job
-            /*
-             * CondorJob compareExpectedJob = WorkflowJobFactory.createJob(++count, CompareExpectedCLI.class,
-             * getWorkflowPlan(), htsfSample); compareExpectedJob.setSiteName(siteName);
-             * compareExpectedJob.addArgument(CompareExpectedCLI.MAXIMUMLIKELIHOOD,
-             * calculateMaximumLikelihoodsOutput.getAbsolutePath());
-             * compareExpectedJob.addArgument(CompareExpectedCLI.EXPECTEDEC2HTSFMAP, expectedExomeChip2HTSFMap); File
-             * compareExpectedOutput = new File(outputDirectory, vcfFile.getName().replace(".vcf", ".idchk.txt"));
-             * compareExpectedJob.addArgument(CompareExpectedCLI.OUTPUT, compareExpectedOutput.getAbsolutePath());
-             * graph.addVertex(compareExpectedJob); graph.addEdge(calculateMaximumLikelihoodsJob, compareExpectedJob);
-             */
-
-            CondorJob calculateMaximumLikelihoodsFromVCFJob = WorkflowJobFactory.createJob(++count,
-                    CalculateMaximumLikelihoodFromVCFCLI.class, getWorkflowPlan(), htsfSample);
-            calculateMaximumLikelihoodsFromVCFJob.setSiteName(siteName);
-            calculateMaximumLikelihoodsFromVCFJob.addArgument(CalculateMaximumLikelihoodFromVCFCLI.VCF,
-                    vcfFile.getAbsolutePath());
-            calculateMaximumLikelihoodsFromVCFJob.addArgument(CalculateMaximumLikelihoodFromVCFCLI.INTERVALLIST,
-                    intervalList);
-            calculateMaximumLikelihoodsFromVCFJob.addArgument(CalculateMaximumLikelihoodFromVCFCLI.SAMPLE, vcfFile
-                    .getName().replace(".vcf", ""));
-            calculateMaximumLikelihoodsFromVCFJob.addArgument(CalculateMaximumLikelihoodFromVCFCLI.ECDATA,
-                    exomeChipData);
-            calculateMaximumLikelihoodsFromVCFJob.addArgument(CalculateMaximumLikelihoodFromVCFCLI.OUTPUT,
-                    outputDirectory.getAbsolutePath());
-            calculateMaximumLikelihoodsFromVCFJob.setPriority(200);
+            CondorJob calculateMaximumLikelihoodsFromVCFJob = builder.build();
+            logger.info(calculateMaximumLikelihoodsFromVCFJob.toString());
             graph.addVertex(calculateMaximumLikelihoodsFromVCFJob);
 
         }
