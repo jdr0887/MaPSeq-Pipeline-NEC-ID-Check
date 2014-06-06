@@ -7,10 +7,14 @@
   <reference id="NECIDCheckWorkflowBeanService" interface="edu.unc.mapseq.workflow.WorkflowBeanService"
     component-name="NECIDCheckWorkflowBeanService" />
 
-  <bean id="NECIdentityCheckMessagingService" class="edu.unc.mapseq.messaging.nec.ic.NECIdentityCheckMessagingService"
+  <bean id="NECIdentityCheckMessageListener" class="edu.unc.mapseq.messaging.nec.ic.NECIdentityCheckMessageListener">
+    <property name="workflowBeanService" ref="NECIDCheckWorkflowBeanService" />
+  </bean>
+
+  <bean id="NECIdentityCheckMessageService" class="edu.unc.mapseq.messaging.nec.ic.NECIdentityCheckMessageService"
     init-method="start" destroy-method="stop" activation="eager">
     <property name="connectionFactory" ref="connectionFactory" />
-    <property name="workflowBeanService" ref="NECIDCheckWorkflowBeanService" />
+    <property name="messageListener" ref="NECIdentityCheckMessageListener" />
     <property name="destinationName" value="queue/nec.idcheck" />
   </bean>
 
