@@ -34,8 +34,8 @@
       <artifactId>mapseq-workflow-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>edu.unc.mapseq</groupId>
-      <artifactId>modules</artifactId>
+      <groupId>edu.unc.mapseq.distribution</groupId>
+      <artifactId>mapseq-modules</artifactId>
     </dependency>
   </dependencies>
   <build>
