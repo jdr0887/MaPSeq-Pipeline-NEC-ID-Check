@@ -70,7 +70,7 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
         Workflow variantCallingWorkflow = null;
         try {
             variantCallingWorkflow = getWorkflowBeanService().getMaPSeqDAOBean().getWorkflowDAO()
-                    .findByName("NECVariantCalling");
+                    .findByName("NECVariantCalling").get(0);
         } catch (MaPSeqDAOException e1) {
             e1.printStackTrace();
         }

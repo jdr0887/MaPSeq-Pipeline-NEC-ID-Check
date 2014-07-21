@@ -40,7 +40,7 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
             Set<FileData> fileDataSet = htsfSample.getFileDatas();
 
-            Workflow variantCallingWorkflow = mapseqDAOBean.getWorkflowDAO().findByName("NECVariantCalling");
+            Workflow variantCallingWorkflow = mapseqDAOBean.getWorkflowDAO().findByName("NECVariantCalling").get(0);
 
             File vcfFile = null;
             List<File> possibleVCFFileList = WorkflowUtil.lookupFileByJobAndMimeTypeAndWorkflowId(fileDataSet,

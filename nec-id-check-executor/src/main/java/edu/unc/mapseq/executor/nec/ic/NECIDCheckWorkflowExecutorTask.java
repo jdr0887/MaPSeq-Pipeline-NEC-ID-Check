@@ -47,7 +47,13 @@ public class NECIDCheckWorkflowExecutorTask extends TimerTask {
         WorkflowPlanDAO workflowPlanDAO = this.workflowBeanService.getMaPSeqDAOBean().getWorkflowPlanDAO();
 
         try {
-            Workflow workflow = workflowDAO.findByName("NECIDCheck");
+            
+            List<Workflow> workflowList = workflowDAO.findByName("NECIDCheck");
+            if (workflowList == null || (workflowList != null && workflowList.isEmpty())) {
+                logger.error("No Workflow Found: {}", "NECIDCheck");
+                return;
+            }
+            Workflow workflow = workflowList.get(0);
             List<WorkflowPlan> workflowPlanList = workflowPlanDAO.findEnqueued(workflow.getId());
 
             if (workflowPlanList != null && workflowPlanList.size() > 0) {
