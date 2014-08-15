@@ -19,18 +19,18 @@ import org.slf4j.LoggerFactory;
 import edu.unc.mapseq.commons.nec.ic.SaveBestMatchAttributeRunnable;
 import edu.unc.mapseq.dao.MaPSeqDAOException;
 import edu.unc.mapseq.dao.model.FileData;
-import edu.unc.mapseq.dao.model.HTSFSample;
+import edu.unc.mapseq.dao.model.Flowcell;
 import edu.unc.mapseq.dao.model.MimeType;
-import edu.unc.mapseq.dao.model.SequencerRun;
+import edu.unc.mapseq.dao.model.Sample;
 import edu.unc.mapseq.dao.model.Workflow;
 import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
 import edu.unc.mapseq.module.ic.CalculateMaximumLikelihoodFromVCFCLI;
 import edu.unc.mapseq.workflow.WorkflowException;
 import edu.unc.mapseq.workflow.WorkflowUtil;
-import edu.unc.mapseq.workflow.impl.AbstractWorkflow;
+import edu.unc.mapseq.workflow.impl.AbstractSampleWorkflow;
 import edu.unc.mapseq.workflow.impl.WorkflowJobFactory;
 
-public class NECIDCheckWorkflow extends AbstractWorkflow {
+public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
     private final Logger logger = LoggerFactory.getLogger(NECIDCheckWorkflow.class);
 
@@ -59,8 +59,8 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
 
         int count = 0;
 
-        Set<HTSFSample> htsfSampleSet = getAggregateHTSFSampleSet();
-        logger.info("htsfSampleSet.size(): {}", htsfSampleSet.size());
+        Set<Sample> sampleSet = getAggregatedSamples();
+        logger.info("sampleSet.size(): {}", sampleSet.size());
 
         String siteName = getWorkflowBeanService().getAttributes().get("siteName");
         String intervalList = getWorkflowBeanService().getAttributes().get("intervalList");
@@ -75,13 +75,12 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
             e1.printStackTrace();
         }
 
-        for (HTSFSample htsfSample : htsfSampleSet) {
+        for (Sample sample : sampleSet) {
 
-            SequencerRun sequencerRun = htsfSample.getSequencerRun();
-            File outputDirectory = createOutputDirectory(sequencerRun.getName(), htsfSample,
-                    getName().replace("IDCheck", ""), getVersion());
+            Flowcell flowcell = sample.getFlowcell();
+            File outputDirectory = new File(sample.getOutputDirectory());
 
-            Set<FileData> fileDataSet = htsfSample.getFileDatas();
+            Set<FileData> fileDataSet = sample.getFileDatas();
 
             File vcfFile = null;
             List<File> possibleVCFFileList = WorkflowUtil.lookupFileByJobAndMimeTypeAndWorkflowId(fileDataSet,
@@ -108,12 +107,12 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
             }
 
             if (vcfFile == null) {
-                logger.warn("vcf file to process was not found: {}", htsfSample.toString());
+                logger.warn("vcf file to process was not found: {}", sample.toString());
                 throw new WorkflowException("vcf file to process was not found");
             }
 
             CondorJobBuilder builder = WorkflowJobFactory
-                    .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, getWorkflowPlan(), htsfSample)
+                    .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, getWorkflowRunAttempt(), sample)
                     .siteName(siteName).priority(200);
             builder.addArgument(CalculateMaximumLikelihoodFromVCFCLI.VCF, vcfFile.getAbsolutePath())
                     .addArgument(CalculateMaximumLikelihoodFromVCFCLI.INTERVALLIST, intervalList)
@@ -134,13 +133,12 @@ public class NECIDCheckWorkflow extends AbstractWorkflow {
     public void postRun() throws WorkflowException {
         logger.info("ENTERING postRun()");
 
-        Set<HTSFSample> htsfSampleSet = getAggregateHTSFSampleSet();
-        logger.info("htsfSampleSet.size(): {}", htsfSampleSet.size());
+        Set<Sample> sampleSet = getAggregatedSamples();
 
-        for (HTSFSample htsfSample : htsfSampleSet) {
+        for (Sample sample : sampleSet) {
             SaveBestMatchAttributeRunnable runnable = new SaveBestMatchAttributeRunnable();
             runnable.setMapseqDAOBean(getWorkflowBeanService().getMaPSeqDAOBean());
-            runnable.setHtsfSampleId(htsfSample.getId());
+            runnable.setSampleId(sample.getId());
             Executors.newSingleThreadExecutor().execute(runnable);
         }
 
