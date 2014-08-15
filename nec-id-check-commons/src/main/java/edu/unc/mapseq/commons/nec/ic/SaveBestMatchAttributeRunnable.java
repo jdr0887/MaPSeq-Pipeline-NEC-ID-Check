@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import edu.unc.mapseq.dao.MaPSeqDAOBean;
 import edu.unc.mapseq.dao.MaPSeqDAOException;
-import edu.unc.mapseq.dao.model.EntityAttribute;
+import edu.unc.mapseq.dao.model.Attribute;
 import edu.unc.mapseq.dao.model.FileData;
-import edu.unc.mapseq.dao.model.HTSFSample;
 import edu.unc.mapseq.dao.model.MimeType;
+import edu.unc.mapseq.dao.model.Sample;
 import edu.unc.mapseq.dao.model.Workflow;
 import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
 import edu.unc.mapseq.workflow.WorkflowUtil;
@@ -27,18 +27,18 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
     private MaPSeqDAOBean mapseqDAOBean;
 
-    private Long htsfSampleId;
+    private Long sampleId;
 
     @Override
     public void run() {
 
         try {
 
-            HTSFSample htsfSample = mapseqDAOBean.getHTSFSampleDAO().findById(this.htsfSampleId);
+            Sample sample = mapseqDAOBean.getSampleDAO().findById(this.sampleId);
 
-            File outputDirectory = new File(htsfSample.getOutputDirectory());
+            File outputDirectory = new File(sample.getOutputDirectory());
 
-            Set<FileData> fileDataSet = htsfSample.getFileDatas();
+            Set<FileData> fileDataSet = sample.getFileDatas();
 
             Workflow variantCallingWorkflow = mapseqDAOBean.getWorkflowDAO().findByName("NECVariantCalling").get(0);
 
@@ -60,7 +60,7 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
             }
 
             if (vcfFile == null) {
-                logger.warn("vcf file to process was not found: {}", htsfSample.toString());
+                logger.warn("vcf file to process was not found: {}", sample.toString());
                 return;
             }
 
@@ -72,35 +72,31 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
                 e1.printStackTrace();
             }
 
-            Set<EntityAttribute> attributeSet = htsfSample.getAttributes();
+            Set<Attribute> attributeSet = sample.getAttributes();
 
-            Set<String> entityAttributeNameSet = new HashSet<String>();
+            Set<String> attributeNameSet = new HashSet<String>();
 
-            if (attributeSet == null) {
-                attributeSet = new HashSet<EntityAttribute>();
+            for (Attribute attribute : attributeSet) {
+                attributeNameSet.add(attribute.getName());
             }
 
-            for (EntityAttribute attribute : attributeSet) {
-                entityAttributeNameSet.add(attribute.getName());
-            }
-
-            Set<String> synchSet = Collections.synchronizedSet(entityAttributeNameSet);
+            Set<String> synchSet = Collections.synchronizedSet(attributeNameSet);
 
             if (lineList != null && lineList.size() > 1) {
                 String line = lineList.get(1);
                 if (synchSet.contains("best_match")) {
-                    for (EntityAttribute attribute : attributeSet) {
+                    for (Attribute attribute : attributeSet) {
                         if (attribute.getName().equals("best_match")) {
                             attribute.setValue(line.split("\\t")[1]);
                             break;
                         }
                     }
                 } else {
-                    attributeSet.add(new EntityAttribute("best_match", line.split("\\t")[1]));
+                    attributeSet.add(new Attribute("best_match", line.split("\\t")[1]));
                 }
             }
-            htsfSample.setAttributes(attributeSet);
-            mapseqDAOBean.getHTSFSampleDAO().save(htsfSample);
+            sample.setAttributes(attributeSet);
+            mapseqDAOBean.getSampleDAO().save(sample);
         } catch (MaPSeqDAOException e) {
             e.printStackTrace();
         }
@@ -115,12 +111,12 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
         this.mapseqDAOBean = mapseqDAOBean;
     }
 
-    public Long getHtsfSampleId() {
-        return htsfSampleId;
+    public Long getSampleId() {
+        return sampleId;
     }
 
-    public void setHtsfSampleId(Long htsfSampleId) {
-        this.htsfSampleId = htsfSampleId;
+    public void setSampleId(Long sampleId) {
+        this.sampleId = sampleId;
     }
 
 }

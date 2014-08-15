@@ -12,8 +12,8 @@ import edu.unc.mapseq.dao.MaPSeqDAOBean;
 @Command(scope = "nec-ic", name = "save-best-match-attribute", description = "")
 public class SaveBestMatchAttributeAction extends AbstractAction {
 
-    @Argument(index = 0, name = "htsfSampleId", description = "htsfSampleId", required = true, multiValued = false)
-    private Long htsfSampleId;
+    @Argument(index = 0, name = "sampleId", description = "sampleId", required = true, multiValued = false)
+    private Long sampleId;
 
     private MaPSeqDAOBean maPSeqDAOBean;
 
@@ -26,18 +26,18 @@ public class SaveBestMatchAttributeAction extends AbstractAction {
 
         SaveBestMatchAttributeRunnable runnable = new SaveBestMatchAttributeRunnable();
         runnable.setMapseqDAOBean(maPSeqDAOBean);
-        runnable.setHtsfSampleId(htsfSampleId);
+        runnable.setSampleId(sampleId);
         Executors.newSingleThreadExecutor().execute(runnable);
 
         return null;
     }
 
-    public Long getHtsfSampleId() {
-        return htsfSampleId;
+    public Long getSampleId() {
+        return sampleId;
     }
 
-    public void setHtsfSampleId(Long htsfSampleId) {
-        this.htsfSampleId = htsfSampleId;
+    public void setSampleId(Long sampleId) {
+        this.sampleId = sampleId;
     }
 
     public MaPSeqDAOBean getMaPSeqDAOBean() {
