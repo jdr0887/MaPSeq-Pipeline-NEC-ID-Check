@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import edu.unc.mapseq.commons.nec.ic.SaveBestMatchAttributeRunnable;
 import edu.unc.mapseq.dao.MaPSeqDAOException;
 import edu.unc.mapseq.dao.model.FileData;
-import edu.unc.mapseq.dao.model.Flowcell;
 import edu.unc.mapseq.dao.model.MimeType;
 import edu.unc.mapseq.dao.model.Sample;
 import edu.unc.mapseq.dao.model.Workflow;
@@ -77,8 +76,9 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
         for (Sample sample : sampleSet) {
 
-            Flowcell flowcell = sample.getFlowcell();
-            File outputDirectory = new File(sample.getOutputDirectory());
+            File outputDirectory = new File(sample.getOutputDirectory(), getName());
+            File tmpDirectory = new File(outputDirectory, "tmp");
+            tmpDirectory.mkdirs();
 
             Set<FileData> fileDataSet = sample.getFileDatas();
 
