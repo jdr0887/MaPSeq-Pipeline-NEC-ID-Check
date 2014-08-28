@@ -29,8 +29,8 @@ public class NECIDCheckMessageTest {
             Destination destination = session.createQueue("queue/nec.idcheck");
             MessageProducer producer = session.createProducer(destination);
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-            String format = "{\"account_name\":\"%s\",\"entities\":[{\"entity_type\":\"HTSFSample\",\"guid\":\"%d\"},{\"entity_type\":\"WorkflowRun\",\"name\":\"%s\"}]}";
-            producer.send(session.createTextMessage(String.format(format, "rc_renci.svc", 138714, name)));
+            String format = "{\"entities\":[{\"entityType\":\"Sample\",\"id\":\"%d\"},{\"entityType\":\"WorkflowRun\",\"name\":\"%s\"}]}";
+            producer.send(session.createTextMessage(String.format(format, 138714, name)));
         } catch (JMSException e) {
             e.printStackTrace();
         } finally {
