@@ -2,8 +2,8 @@ package edu.unc.mapseq.commands.nec.ic;
 
 import java.util.concurrent.Executors;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.commands.Argument;
+import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.AbstractAction;
 
 import edu.unc.mapseq.commons.nec.ic.SaveBestMatchAttributeRunnable;
