@@ -22,6 +22,7 @@ import edu.unc.mapseq.dao.model.FileData;
 import edu.unc.mapseq.dao.model.MimeType;
 import edu.unc.mapseq.dao.model.Sample;
 import edu.unc.mapseq.dao.model.Workflow;
+import edu.unc.mapseq.dao.model.WorkflowRunAttempt;
 import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
 import edu.unc.mapseq.module.ic.CalculateMaximumLikelihoodFromVCFCLI;
 import edu.unc.mapseq.workflow.WorkflowException;
@@ -60,6 +61,8 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
         Set<Sample> sampleSet = getAggregatedSamples();
         logger.info("sampleSet.size(): {}", sampleSet.size());
+
+        WorkflowRunAttempt attempt = getWorkflowRunAttempt();
 
         String siteName = getWorkflowBeanService().getAttributes().get("siteName");
         String intervalList = getWorkflowBeanService().getAttributes().get("intervalList");
@@ -112,8 +115,8 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
             }
 
             CondorJobBuilder builder = WorkflowJobFactory
-                    .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, getWorkflowRunAttempt(), sample)
-                    .siteName(siteName).priority(200);
+                    .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, attempt).siteName(siteName)
+                    .priority(200);
             builder.addArgument(CalculateMaximumLikelihoodFromVCFCLI.VCF, vcfFile.getAbsolutePath())
                     .addArgument(CalculateMaximumLikelihoodFromVCFCLI.INTERVALLIST, intervalList)
                     .addArgument(CalculateMaximumLikelihoodFromVCFCLI.SAMPLE, vcfFile.getName().replace(".vcf", ""))
