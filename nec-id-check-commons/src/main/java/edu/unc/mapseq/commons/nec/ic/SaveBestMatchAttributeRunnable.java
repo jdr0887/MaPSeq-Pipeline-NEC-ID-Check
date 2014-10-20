@@ -11,8 +11,11 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.unc.mapseq.dao.AttributeDAO;
 import edu.unc.mapseq.dao.MaPSeqDAOBean;
 import edu.unc.mapseq.dao.MaPSeqDAOException;
+import edu.unc.mapseq.dao.SampleDAO;
+import edu.unc.mapseq.dao.WorkflowDAO;
 import edu.unc.mapseq.dao.model.Attribute;
 import edu.unc.mapseq.dao.model.FileData;
 import edu.unc.mapseq.dao.model.MimeType;
@@ -31,16 +34,19 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
     @Override
     public void run() {
+        SampleDAO sampleDAO = mapseqDAOBean.getSampleDAO();
+        AttributeDAO attributeDAO = mapseqDAOBean.getAttributeDAO();
+        WorkflowDAO workflowDAO = mapseqDAOBean.getWorkflowDAO();
 
         try {
 
-            Sample sample = mapseqDAOBean.getSampleDAO().findById(this.sampleId);
+            Sample sample = sampleDAO.findById(this.sampleId);
 
             File outputDirectory = new File(sample.getOutputDirectory());
 
             Set<FileData> fileDataSet = sample.getFileDatas();
 
-            Workflow variantCallingWorkflow = mapseqDAOBean.getWorkflowDAO().findByName("NECVariantCalling").get(0);
+            Workflow variantCallingWorkflow = workflowDAO.findByName("NECVariantCalling").get(0);
 
             File vcfFile = null;
             List<File> possibleVCFFileList = WorkflowUtil.lookupFileByJobAndMimeTypeAndWorkflowId(fileDataSet,
@@ -88,11 +94,14 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
                     for (Attribute attribute : attributeSet) {
                         if (attribute.getName().equals("best_match")) {
                             attribute.setValue(line.split("\\t")[1]);
+                            attributeDAO.save(attribute);
                             break;
                         }
                     }
                 } else {
-                    attributeSet.add(new Attribute("best_match", line.split("\\t")[1]));
+                    Attribute attribute = new Attribute("best_match", line.split("\\t")[1]);
+                    attribute.setId(attributeDAO.save(attribute));
+                    attributeSet.add(attribute);
                 }
             }
             sample.setAttributes(attributeSet);
