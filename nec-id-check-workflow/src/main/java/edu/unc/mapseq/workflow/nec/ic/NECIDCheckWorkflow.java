@@ -79,7 +79,7 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
         for (Sample sample : sampleSet) {
 
-            File outputDirectory = new File(sample.getOutputDirectory(), getName());
+            File outputDirectory = new File(sample.getOutputDirectory(), "NEC");
             File tmpDirectory = new File(outputDirectory, "tmp");
             tmpDirectory.mkdirs();
 
