@@ -42,7 +42,7 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
             Sample sample = sampleDAO.findById(this.sampleId);
 
-            File outputDirectory = new File(sample.getOutputDirectory());
+            File outputDirectory = new File(sample.getOutputDirectory(), "NEC");
 
             Set<FileData> fileDataSet = sample.getFileDatas();
 
