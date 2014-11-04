@@ -79,7 +79,7 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
         for (Sample sample : sampleSet) {
 
-            File outputDirectory = new File(sample.getOutputDirectory(), "NEC");
+	  File outputDirectory = new File(sample.getOutputDirectory(), getName());
             File tmpDirectory = new File(outputDirectory, "tmp");
             tmpDirectory.mkdirs();
 
@@ -92,21 +92,19 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
             if (possibleVCFFileList != null && possibleVCFFileList.size() > 0) {
                 vcfFile = possibleVCFFileList.get(0);
-            }
+	    }
 
+	    // check the file system
             if (vcfFile == null) {
-                // database may not have the file mapping correct
-                if (fileDataSet != null) {
-                    for (FileData fileData : fileDataSet) {
-                        if (fileData.getMimeType().equals(MimeType.TEXT_VCF)) {
-                            possibleVCFFileList.add(new File(fileData.getPath(), fileData.getName()));
-                        }
-                    }
-                }
-            }
-
-            if (possibleVCFFileList != null && possibleVCFFileList.size() > 0) {
-                vcfFile = possibleVCFFileList.get(0);
+	      File necVariantCallingDir = new File(sample.getOutputDirectory(), "NECVariantCalling");
+	      if (necVariantCallingDir.exists()) {
+		for (File f : necVariantCallingDir.listFiles()) {
+		  if (f.getName().endsWith(".realign.fix.pr.vcf")) {
+		    vcfFile = f;
+		    break;
+		  }
+		}
+	      }
             }
 
             if (vcfFile == null) {
