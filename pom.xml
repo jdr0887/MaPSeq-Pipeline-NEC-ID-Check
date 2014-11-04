@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.unc.mapseq.pipelines</groupId>
   <artifactId>nec-id-check</artifactId>
-  <version>0.5.18-SNAPSHOT</version>
+  <version>0.5.18</version>
   <packaging>pom</packaging>
   <issueManagement>
     <system>gForge</system>
@@ -39,19 +39,19 @@
   <scm>
     <developerConnection>scm:git:ssh://${user.name}@code.renci.org/gitroot/mps_nec_i_c_pl</developerConnection>
     <connection>scm:git:ssh://developername@code.renci.org/gitroot/mps_nec_i_c_pl</connection>
-    <tag>HEAD</tag>
+    <tag>nec-id-check-0.5.18</tag>
   </scm>
   <dependencyManagement>
     <dependencies>
       <dependency>
       	<groupId>edu.unc.mapseq.pipelines.nec-id-check</groupId>
       	<artifactId>nec-id-check-workflow</artifactId>
-      	<version>0.5.18-SNAPSHOT</version>
+      	<version>0.5.18</version>
       </dependency>
       <dependency>
 	<groupId>edu.unc.mapseq.pipelines.nec-id-check</groupId>
 	<artifactId>nec-id-check-commons</artifactId>      
-      	<version>0.5.18-SNAPSHOT</version>
+      	<version>0.5.18</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
