@@ -42,7 +42,7 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
             Sample sample = sampleDAO.findById(this.sampleId);
 
-            File outputDirectory = new File(sample.getOutputDirectory(), "NEC");
+            File outputDirectory = new File(sample.getOutputDirectory(), "NECIDCheck");
 
             Set<FileData> fileDataSet = sample.getFileDatas();
 
@@ -69,8 +69,33 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
                 logger.warn("vcf file to process was not found: {}", sample.toString());
                 return;
             }
+	    
+            File compareExpectedOutput = null;
 
-            File compareExpectedOutput = new File(outputDirectory, vcfFile.getName().replace(".vcf", ".ec.tsv"));
+	    if (outputDirectory.exists()) {
+                for (File file : outputDirectory.listFiles()) {
+                    if (file.getName().endsWith(".realign.fix.pr.ec.tsv")) {
+                        compareExpectedOutput = file;
+			break;
+                    }
+                }	    
+	    }
+
+            if (compareExpectedOutput == null) {
+	      File alternateDir = new File(sample.getOutputDirectory(), "NEC");
+	      for (File file : alternateDir.listFiles()) {
+		if (file.getName().endsWith(".realign.fix.pr.ec.tsv")) {
+		  compareExpectedOutput = file;
+		  break;
+		}
+	      }
+            }
+
+	    if (compareExpectedOutput == null || (compareExpectedOutput != null && !compareExpectedOutput.exists())) {
+	      logger.error("could not find ec.tsv file");
+	      return;
+	    }
+
             List<String> lineList = null;
             try {
                 lineList = FileUtils.readLines(compareExpectedOutput);
