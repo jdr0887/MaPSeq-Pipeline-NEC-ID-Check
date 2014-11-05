@@ -109,6 +109,19 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
                 }
             }
 
+            // check the file system again
+            if (vcfFile == null) {
+                File necDir = new File(sample.getOutputDirectory(), "NEC");
+                if (necDir.exists()) {
+                    for (File f : necDir.listFiles()) {
+                        if (f.getName().endsWith(".realign.fix.pr.vcf")) {
+                            vcfFile = f;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (vcfFile == null) {
                 logger.warn("vcf file to process was not found");
                 throw new WorkflowException("vcf file to process was not found");
