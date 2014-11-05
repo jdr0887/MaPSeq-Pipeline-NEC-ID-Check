@@ -79,7 +79,9 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
         for (Sample sample : sampleSet) {
 
-	  File outputDirectory = new File(sample.getOutputDirectory(), getName());
+            logger.info(sample.toString());
+
+            File outputDirectory = new File(sample.getOutputDirectory(), getName());
             File tmpDirectory = new File(outputDirectory, "tmp");
             tmpDirectory.mkdirs();
 
@@ -90,25 +92,25 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
                     getWorkflowBeanService().getMaPSeqDAOBean(), GATKUnifiedGenotyper.class, MimeType.TEXT_VCF,
                     variantCallingWorkflow.getId());
 
-            if (possibleVCFFileList != null && possibleVCFFileList.size() > 0) {
+            if (possibleVCFFileList != null && !possibleVCFFileList.isEmpty()) {
                 vcfFile = possibleVCFFileList.get(0);
-	    }
+            }
 
-	    // check the file system
+            // check the file system
             if (vcfFile == null) {
-	      File necVariantCallingDir = new File(sample.getOutputDirectory(), "NECVariantCalling");
-	      if (necVariantCallingDir.exists()) {
-		for (File f : necVariantCallingDir.listFiles()) {
-		  if (f.getName().endsWith(".realign.fix.pr.vcf")) {
-		    vcfFile = f;
-		    break;
-		  }
-		}
-	      }
+                File necVariantCallingDir = new File(sample.getOutputDirectory(), "NECVariantCalling");
+                if (necVariantCallingDir.exists()) {
+                    for (File f : necVariantCallingDir.listFiles()) {
+                        if (f.getName().endsWith(".realign.fix.pr.vcf")) {
+                            vcfFile = f;
+                            break;
+                        }
+                    }
+                }
             }
 
             if (vcfFile == null) {
-                logger.warn("vcf file to process was not found: {}", sample.toString());
+                logger.warn("vcf file to process was not found");
                 throw new WorkflowException("vcf file to process was not found");
             }
 
