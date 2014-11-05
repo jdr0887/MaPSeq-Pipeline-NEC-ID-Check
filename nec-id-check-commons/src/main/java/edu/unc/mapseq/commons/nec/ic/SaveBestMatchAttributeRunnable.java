@@ -15,14 +15,8 @@ import edu.unc.mapseq.dao.AttributeDAO;
 import edu.unc.mapseq.dao.MaPSeqDAOBean;
 import edu.unc.mapseq.dao.MaPSeqDAOException;
 import edu.unc.mapseq.dao.SampleDAO;
-import edu.unc.mapseq.dao.WorkflowDAO;
 import edu.unc.mapseq.dao.model.Attribute;
-import edu.unc.mapseq.dao.model.FileData;
-import edu.unc.mapseq.dao.model.MimeType;
 import edu.unc.mapseq.dao.model.Sample;
-import edu.unc.mapseq.dao.model.Workflow;
-import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
-import edu.unc.mapseq.workflow.WorkflowUtil;
 
 public class SaveBestMatchAttributeRunnable implements Runnable {
 
@@ -36,7 +30,6 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
     public void run() {
         SampleDAO sampleDAO = mapseqDAOBean.getSampleDAO();
         AttributeDAO attributeDAO = mapseqDAOBean.getAttributeDAO();
-        WorkflowDAO workflowDAO = mapseqDAOBean.getWorkflowDAO();
 
         try {
 
@@ -44,57 +37,31 @@ public class SaveBestMatchAttributeRunnable implements Runnable {
 
             File outputDirectory = new File(sample.getOutputDirectory(), "NECIDCheck");
 
-            Set<FileData> fileDataSet = sample.getFileDatas();
+            File compareExpectedOutput = null;
 
-            Workflow variantCallingWorkflow = workflowDAO.findByName("NECVariantCalling").get(0);
-
-            File vcfFile = null;
-            List<File> possibleVCFFileList = WorkflowUtil.lookupFileByJobAndMimeTypeAndWorkflowId(fileDataSet,
-                    mapseqDAOBean, GATKUnifiedGenotyper.class, MimeType.TEXT_VCF, variantCallingWorkflow.getId());
-
-            if (possibleVCFFileList != null && possibleVCFFileList.size() > 0) {
-                vcfFile = possibleVCFFileList.get(0);
-            }
-
-            if (vcfFile == null) {
-                logger.debug("could not find VCF");
+            if (outputDirectory.exists()) {
                 for (File file : outputDirectory.listFiles()) {
-                    if (file.getName().endsWith(".realign.fix.pr.vcf")) {
-                        vcfFile = file;
+                    if (file.getName().endsWith(".realign.fix.pr.ec.tsv")) {
+                        compareExpectedOutput = file;
+                        break;
                     }
                 }
             }
 
-            if (vcfFile == null) {
-                logger.warn("vcf file to process was not found: {}", sample.toString());
-                return;
-            }
-	    
-            File compareExpectedOutput = null;
-
-	    if (outputDirectory.exists()) {
-                for (File file : outputDirectory.listFiles()) {
+            if (compareExpectedOutput == null) {
+                File alternateDir = new File(sample.getOutputDirectory(), "NEC");
+                for (File file : alternateDir.listFiles()) {
                     if (file.getName().endsWith(".realign.fix.pr.ec.tsv")) {
                         compareExpectedOutput = file;
-			break;
+                        break;
                     }
-                }	    
-	    }
-
-            if (compareExpectedOutput == null) {
-	      File alternateDir = new File(sample.getOutputDirectory(), "NEC");
-	      for (File file : alternateDir.listFiles()) {
-		if (file.getName().endsWith(".realign.fix.pr.ec.tsv")) {
-		  compareExpectedOutput = file;
-		  break;
-		}
-	      }
+                }
             }
 
-	    if (compareExpectedOutput == null || (compareExpectedOutput != null && !compareExpectedOutput.exists())) {
-	      logger.error("could not find ec.tsv file");
-	      return;
-	    }
+            if (compareExpectedOutput == null || (compareExpectedOutput != null && !compareExpectedOutput.exists())) {
+                logger.error("could not find ec.tsv file");
+                return;
+            }
 
             List<String> lineList = null;
             try {
