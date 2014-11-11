@@ -129,7 +129,7 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
             CondorJobBuilder builder = WorkflowJobFactory
                     .createJob(++count, CalculateMaximumLikelihoodFromVCFCLI.class, attempt.getId(), sample.getId())
-                    .siteName(siteName).priority(200);
+                    .siteName(siteName).priority(200).numberOfProcessors(2);
             builder.addArgument(CalculateMaximumLikelihoodFromVCFCLI.VCF, vcfFile.getAbsolutePath())
                     .addArgument(CalculateMaximumLikelihoodFromVCFCLI.INTERVALLIST, intervalList)
                     .addArgument(CalculateMaximumLikelihoodFromVCFCLI.SAMPLE, vcfFile.getName().replace(".vcf", ""))
