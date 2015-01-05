@@ -2,13 +2,13 @@
   <parent>
     <groupId>edu.unc.mapseq.pipelines</groupId>
     <artifactId>nec-id-check</artifactId>
-    <version>0.5.33-SNAPSHOT</version>
+    <version>0.5.33</version>
   </parent>
   <name>MaPSeq :: Pipelines :: NEC ID Check :: Messaging</name>
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.unc.mapseq.pipelines.nec-id-check</groupId>
   <artifactId>nec-id-check-messaging</artifactId>
-  <version>0.5.33-SNAPSHOT</version>
+  <version>0.5.33</version>
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
