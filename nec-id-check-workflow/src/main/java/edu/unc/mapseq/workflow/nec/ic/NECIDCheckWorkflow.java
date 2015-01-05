@@ -1,7 +1,6 @@
 package edu.unc.mapseq.workflow.nec.ic;
 
 import java.io.File;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -26,9 +25,9 @@ import edu.unc.mapseq.dao.model.WorkflowRunAttempt;
 import edu.unc.mapseq.module.gatk2.GATKUnifiedGenotyper;
 import edu.unc.mapseq.module.ic.CalculateMaximumLikelihoodFromVCFCLI;
 import edu.unc.mapseq.workflow.WorkflowException;
-import edu.unc.mapseq.workflow.WorkflowUtil;
 import edu.unc.mapseq.workflow.impl.AbstractSampleWorkflow;
 import edu.unc.mapseq.workflow.impl.WorkflowJobFactory;
+import edu.unc.mapseq.workflow.impl.WorkflowUtil;
 
 public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
@@ -87,14 +86,9 @@ public class NECIDCheckWorkflow extends AbstractSampleWorkflow {
 
             Set<FileData> fileDataSet = sample.getFileDatas();
 
-            File vcfFile = null;
-            List<File> possibleVCFFileList = WorkflowUtil.lookupFileByJobAndMimeTypeAndWorkflowId(fileDataSet,
-                    getWorkflowBeanService().getMaPSeqDAOBean(), GATKUnifiedGenotyper.class, MimeType.TEXT_VCF,
+            File vcfFile = WorkflowUtil.findFileByJobAndMimeTypeAndWorkflowId(getWorkflowBeanService()
+                    .getMaPSeqDAOBean(), fileDataSet, GATKUnifiedGenotyper.class, MimeType.TEXT_VCF,
                     variantCallingWorkflow.getId());
-
-            if (possibleVCFFileList != null && !possibleVCFFileList.isEmpty()) {
-                vcfFile = possibleVCFFileList.get(0);
-            }
 
             // check the file system
             if (vcfFile == null) {
